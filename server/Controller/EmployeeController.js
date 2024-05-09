@@ -46,7 +46,7 @@ async function saveEmployee(req, res) {
                 message: "email format is not valid",
                 success: false,
             });
-        } else if (!mobileNoRegex.test(mobileno)) {
+        } else   {
             res.status(400).send({
                 message: "mobileno format is not valid",
                 success: false,

@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 
 const SaveEmployee = () => {
     const [file, setFile] = useState(null);
+    const [response,setresponse]=useState("")
     
     const navigate = useNavigate();
     const employeeData = useSelector((state) => state.query.employeeData);
@@ -67,10 +68,11 @@ const SaveEmployee = () => {
             });
 
             toast(data.message)
+            setresponse(data.message)
             navigate('/protected/employeeList')
         } catch (error) {
-            toast(error)
-        }
+
+            toast(error.response.data.message)        }
     };
       const editEmployee= async ()=>{
         const formData = new FormData();

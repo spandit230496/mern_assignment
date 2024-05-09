@@ -31,7 +31,7 @@ const Register = () => {
       }
 
     } else {
-      alert("Please enter valid username and password");
+      toast("Please enter valid username and password");
     }
   };
 
