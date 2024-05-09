@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 
 const Home = () => {
    const User=JSON.parse(localStorage.getItem("isLoggedIn"))
-   const [user, setUser] = useState(User["data"]["name"]||"User");
+   const userName=User?.data?.name
+   const [user, setUser] = useState(userName||"User");
 
 
   return (

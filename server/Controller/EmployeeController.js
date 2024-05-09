@@ -1,43 +1,57 @@
 const { Employee } = require("../Models/EmployeeModal");
 const cloudinary = require("../Utils/cloudinary");
-const fs=require("fs")
+const fs = require("fs");
+const { mobileNoRegex, emailRegex } = require("../Utils/validation");
 
 async function saveEmployee(req, res) {
+    let imageUrl=""
     try {
-        console.log(req.file);
-        if (!req.file) {
-            return res.status(400).send("No file uploaded");
-        }
+          
+          if(req.file){
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: "uploads",
+            });
+            imageUrl = result.secure_url
+    }
+    
 
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: "uploads",
-        });
-        const imageUrl = result.secure_url;
         const { name, email, mobileno, designation, gender, course } = req.body;
-        
-        const existingEmployee = await Employee.findOne({ email });
+        if (emailRegex.test(email) && mobileNoRegex.test(mobileno)) {
+            const existingEmployee = await Employee.findOne({ email });
 
-        if (existingEmployee) {
+            if (existingEmployee) {
+                return res.status(400).send({
+                    message: "Employee already exists in the database",
+                });
+            }
+
+            const newEmployee = await Employee.create({
+                name,
+                email,
+                mobileno,
+                designation,
+                gender,
+                course,
+            });
+           if(imageUrl){
+            newEmployee["image"]=imageUrl
+           }
+            await newEmployee.save();
+
             return res
-                .status(400)
-                .send({ message: "Employee already exists in the database" });
+                .status(200)
+                .send({ message: "Employee saved successfully", newEmployee });
+        } else if (!emailRegex.test(email)) {
+            res.status(400).send({
+                message: "email format is not valid",
+                success: false,
+            });
+        } else if (!mobileNoRegex.test(mobileno)) {
+            res.status(400).send({
+                message: "mobileno format is not valid",
+                success: false,
+            });
         }
-
-        const newEmployee = await Employee.create({
-            name,
-            email,
-            mobileno,
-            designation,
-            gender,
-            course,
-            image: imageUrl,
-        });
-
-        await newEmployee.save();
-
-        return res
-            .status(200)
-            .send({ message: "Employee saved successfully", newEmployee });
     } catch (error) {
         console.error(error);
         return res.status(500).send({
@@ -83,7 +97,7 @@ async function deleteEmployee(req, res) {
 
         const employee = await Employee.findOneAndDelete({ _id: id });
         return res.status(200).send({
-            message: "Employee Fetched Successfully",
+            message: "Employee Deleted Successfully",
             success: true,
         });
     } catch (error) {
@@ -95,15 +109,38 @@ async function deleteEmployee(req, res) {
 }
 
 async function editEmployee(req, res) {
+    let imageUrl=""
     try {
+          
+          if(req.file){
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: "uploads",
+            });
+             imageUrl = result.secure_url;
+    }
+        
         const { id } = req.params;
-        const { name, email, mobileNo, designation, gender, course, image } =
-            req.body;
+        const { name, email, mobileno, designation, gender, course } = req.body;
+        
+        const updateObject = {
+            name,
+            email,
+            mobileno,
+            designation,
+            gender,
+            course,
+        };
+        
+        if (imageUrl) {
+            updateObject.image = imageUrl;
+        }
+        
         const employee = await Employee.findByIdAndUpdate(
             { _id: id },
-            { name, email, mobileNo, designation, gender, course, image },
+            updateObject,
             { new: true }
         );
+        
 
         if (!employee) {
             return res.status(404).json({

@@ -39,12 +39,16 @@ const EmployeeList = () => {
         setsearch(value);
     };
 
-    const filterEmployee = () => {
-        // Filter employees based on search query
-        const filteredData = data.filter(employee =>
-            employee.name.toLowerCase().includes(search.toLowerCase())
-        );
-        setdata(filteredData);
+    const filterEmployee = async  () => {
+        
+        try{
+           const {data}=await axios.get(`${BASE_URL}/api/search?query=${search}`);
+           console.log(data)
+            setdata(data);
+        }
+        catch(error){
+            toast(error)
+        }
     };
 
     const employeeData = (employee) => {
@@ -53,11 +57,11 @@ const EmployeeList = () => {
     };
 
     useEffect(() => {
-        filterEmployee(); // Call filterEmployee whenever search changes
+        filterEmployee();
     }, [search]);
 
     useEffect(() => {
-        getEmployee(); // Fetch initial data
+        getEmployee(); 
     }, []);
 
     return (
@@ -77,6 +81,7 @@ const EmployeeList = () => {
                 }}
             >
                 <TextField
+                    value={search}
                     id="outlined-basic"
                     label="Search Keyword"
                     variant="outlined"
@@ -128,7 +133,7 @@ const EmployeeList = () => {
                                 <TableCell>{employee.course}</TableCell>
                                 <TableCell>
                                     <EditOutlined onClick={() => employeeData(employee)}>Edit</EditOutlined>
-                                    <Delete onClick={() => deleteEmployee(employee._id)}>Delete</Delete>
+                                    <Delete onClick={() => deleteEmployee(employee._id)} sx={{ color: "red" }}>Delete</Delete>
                                 </TableCell>
                             </TableRow>
                         ))
