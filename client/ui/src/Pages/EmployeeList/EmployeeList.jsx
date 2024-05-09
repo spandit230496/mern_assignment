@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../../baseURL";
 import { setEmployeeData } from '../../State/TextSlice';
-import { Delete, EditOutlined } from "@mui/icons-material";
+import { Delete, EditOutlined ,Person, Person2Outlined} from "@mui/icons-material";
 import { toast } from 'react-toastify';
 
 
@@ -114,6 +114,8 @@ const EmployeeList = () => {
                         data.map((employee) => (
                             <TableRow key={employee._id}>
                                 <TableCell>
+                                    {
+                                   employee.image?
                                     <img
                                         style={{
                                             height: 50,
@@ -123,7 +125,8 @@ const EmployeeList = () => {
                                         }}
                                         alt="Employee"
                                         src={employee.image}
-                                    />
+                                    />:<Person2Outlined/>
+                                    }
                                 </TableCell>
                                 <TableCell>{employee.name}</TableCell>
                                 <TableCell>{employee.email}</TableCell>
